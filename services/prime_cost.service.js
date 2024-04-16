@@ -140,6 +140,8 @@ async function calculatePrimeCosts() {
         storetOpDate = storetOpDate.add(1, "month");
       }
     }
+
+    await tx.storedOperations.deleteMany({});
   });
 }
 
