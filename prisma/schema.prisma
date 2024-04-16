@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id String @db.Uuid @id @unique @default(uuid())
+  name String @db.VarChar(255)
+  primeCost PrimeCost? @relation("PrimeCost")
+  arrivals ArrivalDocumentProduct[] @relation("ArrivalProduct")
+  sales SaleDocumentProduct[] @relation("SaleProduct")
+  operations StoredOperations[] @relation("ProductOperation")
+}
+
+model PrimeCost {
+  product Product @relation("PrimeCost", fields: [product_id], references: [id], onDelete: Cascade)
+  product_id String @db.Uuid @id
+  date DateTime @db.Timestamptz() @default(now())
+  value Float @db.DoublePrecision 
+}
+
+model ArrivalDocument {
+  id String @db.Uuid @id @unique @default(uuid())
+  date DateTime @db.Timestamptz() @default(now())
+  products ArrivalDocumentProduct[] @relation("ArrivalDocument")
+}
+
+model SaleDocument {
+  id String @db.Uuid @id @unique @default(uuid())
+  date DateTime @db.Timestamptz() @default(now())
+  products SaleDocumentProduct[] @relation("SaleDocument")
+}
+
+model ArrivalDocumentProduct {
+  document ArrivalDocument @relation("ArrivalDocument", fields: [document_id], references: [id], onDelete: Cascade) 
+  document_id String @db.Uuid 
+  product Product @relation("ArrivalProduct", fields: [product_id], references: [id], onDelete: Cascade)
+  product_id String @db.Uuid 
+  price Float @db.DoublePrecision
+  quantity Int @db.Integer 
+  @@id(fields: [document_id, product_id])
+}
+
+model SaleDocumentProduct {
+  document SaleDocument @relation("SaleDocument", fields: [document_id], references: [id], onDelete: Cascade) 
+  document_id String @db.Uuid 
+  product Product @relation("SaleProduct", fields: [product_id], references: [id], onDelete: Cascade)
+  product_id String @db.Uuid 
+  price Float @db.DoublePrecision
+  quantity Int @db.Integer 
+  @@id(fields: [document_id, product_id])
+}
+
+// #TODO: Move it to Redis
+
+model StoredOperations {
+  id String @db.Uuid @id @unique @default(uuid())
+  operation_date DateTime @db.Timestamptz()
+  prev_month DateTime @db.Timestamptz()
+  product Product @relation("ProductOperation", fields: [product_id], references: [id], onDelete: Cascade)
+  product_id String @db.Uuid 
+}

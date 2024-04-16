@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "ArrivalDocument" ALTER COLUMN "date" SET DATA TYPE TIMESTAMPTZ;
+
+-- AlterTable
+ALTER TABLE "PrimeCost" ALTER COLUMN "date" SET DATA TYPE TIMESTAMPTZ;
+
+-- AlterTable
+ALTER TABLE "SaleDocument" ALTER COLUMN "date" SET DATA TYPE TIMESTAMPTZ;
